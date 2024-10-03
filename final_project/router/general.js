@@ -61,13 +61,13 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 
 // Get book details based on author
 public_users.get('/author/:author', async function (req, res) {
-  let author = req.params.author.toLowerCase(); // Convert author to lowercase for case-insensitive matching
+  let author = req.params.author; // Convert author to lowercase for case-insensitive matching
   let results = [];
 
   try {
     const matchingBooks = await new Promise((resolve, reject) => {
       for (let key in books) {
-        if (books[key].author.toLowerCase() === author) {
+        if (books[key].author.toLowerCase() === author.toLowerCase()) {
           results.push(books[key]);
         }
       }
@@ -85,13 +85,13 @@ public_users.get('/author/:author', async function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title', async function (req, res) {
-  let title = req.params.author.toLowerCase(); // Convert author to lowercase for case-insensitive matching
+  let title = req.params.title; // Convert author to lowercase for case-insensitive matching
   let results = [];
 
   try {
     const matchingBooks = await new Promise((resolve, reject) => {
       for (let key in books) {
-        if (books[key].title.toLowerCase() === title) {
+        if (books[key].title.toLowerCase() === title.toLowerCase()) {
           results.push(books[key]);
         }
       }
