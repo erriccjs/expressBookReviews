@@ -40,59 +40,69 @@ public_users.get('/', async function (req, res) {
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn', function (req, res) {
+public_users.get('/isbn/:isbn', async function (req, res) {
   // Extract the ISBN (which in your case is a key in the books object)
   let isbn = req.params.isbn;
 
-  // Check if the book exists in the books object using the ISBN as a key
-  let book = books[isbn];
-
-  // If book is found, return it as a JSON response
-  if (book) {
-    return res.status(200).json(book);
-  }
-  // If the book is not found, return a 404 status with an error message
-  else {
+  try {
+    const bookDetails = await new Promise((resolve, reject) => {
+      const book = books[isbn];
+      if (book) {
+        resolve(book);
+      } else {
+        reject(new Error('Book not found'));
+      }
+    });
+    return res.status(200).send(JSON.stringify(bookDetails, null, 2));
+  } catch (error) {
     return res.status(404).json({ message: 'Book not found' });
   }
 });
 
 // Get book details based on author
-public_users.get('/author/:author', function (req, res) {
+public_users.get('/author/:author', async function (req, res) {
   let author = req.params.author.toLowerCase(); // Convert author to lowercase for case-insensitive matching
   let results = [];
 
-  // Iterate through the books object to find matches
-  for (let key in books) {
-    if (books[key].author.toLowerCase() === author) {
-      results.push(books[key]);
-    }
-  }
-
-  // If we find matching books, return them
-  if (results.length > 0) {
-    return res.status(200).json(results);
-  } else {
+  try {
+    const matchingBooks = await new Promise((resolve, reject) => {
+      for (let key in books) {
+        if (books[key].author.toLowerCase() === author) {
+          results.push(books[key]);
+        }
+      }
+      if (results.length > 0) {
+        resolve(results);
+      } else {
+        reject(new Error('Book not found'));
+      }
+    });
+    return res.status(200).send(JSON.stringify(matchingBooks, null, 2));
+  } catch (error) {
     return res.status(404).json({ message: 'Book not found' });
   }
 });
 
 // Get all books based on title
-public_users.get('/title/:title', function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
   let title = req.params.author.toLowerCase(); // Convert author to lowercase for case-insensitive matching
   let results = [];
 
-  // Iterate through the books object to find matches
-  for (let key in books) {
-    if (books[key].title.toLowerCase() === title) {
-      results.push(books[key]);
-    }
-  }
-
-  // If we find matching books, return them
-  if (results.length > 0) {
-    return res.status(200).json(results);
-  } else {
+  try {
+    const matchingBooks = await new Promise((resolve, reject) => {
+      for (let key in books) {
+        if (books[key].title.toLowerCase() === title) {
+          results.push(books[key]);
+        }
+      }
+      if (results.length > 0) {
+        resolve(results);
+      } else {
+        reject(new Error('Book not found'));
+      }
+    });
+    return res.status(200).send(JSON.stringify(matchingBooks, null, 2));
+  } catch (error) {
     return res.status(404).json({ message: 'Book not found' });
   }
 });
