@@ -33,7 +33,7 @@ public_users.get('/', async function (req, res) {
         resolve(books);
       }, 1000);
     });
-    return res.status(200).send(JSON.stringify(booksList, null, 2));
+    return res.status(200).send(bookList);
   } catch (error) {
     return res.status(500).json({ message: 'Error fetching book list' });
   }
@@ -53,7 +53,7 @@ public_users.get('/isbn/:isbn', async function (req, res) {
         reject(new Error('Book not found'));
       }
     });
-    return res.status(200).send(JSON.stringify(bookDetails, null, 2));
+    return res.status(200).send(bookDetails);
   } catch (error) {
     return res.status(404).json({ message: 'Book not found' });
   }
@@ -77,7 +77,7 @@ public_users.get('/author/:author', async function (req, res) {
         reject(new Error('Book not found'));
       }
     });
-    return res.status(200).send(JSON.stringify(matchingBooks, null, 2));
+    return res.status(200).send(matchingBooks);
   } catch (error) {
     return res.status(404).json({ message: 'Book not found' });
   }
@@ -101,7 +101,7 @@ public_users.get('/title/:title', async function (req, res) {
         reject(new Error('Book not found'));
       }
     });
-    return res.status(200).send(JSON.stringify(matchingBooks, null, 2));
+    return res.status(200).send(matchingBooks);
   } catch (error) {
     return res.status(404).json({ message: 'Book not found' });
   }
