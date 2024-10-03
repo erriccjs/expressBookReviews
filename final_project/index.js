@@ -18,8 +18,11 @@ app.use(
 );
 
 app.use('/customer/auth/*', function auth(req, res, next) {
-  if (req.session.authorization) {
-    let token = req.session.authorization['accessToken']; // Access Token
+  // Check if the Authorization header is set
+  const authHeader = req.headers['authorization'];
+
+  if (authHeader) {
+    const token = authHeader.split(' ')[1]; // Extract token from 'Bearer <token>'
 
     // Verify JWT token for user authentication
     jwt.verify(token, 'access', (err, user) => {
@@ -30,8 +33,6 @@ app.use('/customer/auth/*', function auth(req, res, next) {
         return res.status(403).json({ message: 'User not authenticated' }); // Return error if token verification fails
       }
     });
-
-    // Return error if no access token is found in the session
   } else {
     return res.status(403).json({ message: 'User not logged in' });
   }
