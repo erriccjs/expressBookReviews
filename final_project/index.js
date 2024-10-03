@@ -18,20 +18,19 @@ app.use(
 );
 
 app.use('/customer/auth/*', function auth(req, res, next) {
-  // Check if the Authorization header is set
   const authHeader = req.headers['authorization'];
 
-  if (authHeader) {
-    const token = authHeader.split(' ')[1]; // Extract token from 'Bearer <token>'
-
-    // Verify JWT token for user authentication
-    jwt.verify(token, 'access', (err, user) => {
-      if (!err) {
-        req.user = user; // Set authenticated user data on the request object
-        next(); // Proceed to the next middleware
-      } else {
-        return res.status(403).json({ message: 'User not authenticated' }); // Return error if token verification fails
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1]; // Extract token
+    // Verify the token with the same secret used during login
+    jwt.verify(token, 'access', { algorithms: ['HS256'] }, (err, user) => {
+      if (err) {
+        return res
+          .status(403)
+          .json({ message: 'User not authenticated', error: err.message });
       }
+      req.session.username = user; // If valid, attach the user to the request object
+      next(); // Proceed to the next middleware or route handler
     });
   } else {
     return res.status(403).json({ message: 'User not logged in' });

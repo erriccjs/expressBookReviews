@@ -48,14 +48,14 @@ regd_users.post('/login', (req, res) => {
 // Add a book review
 regd_users.put('/auth/review/:isbn', (req, res) => {
   const isbn = req.params.isbn;
-  const review = req.body.review;
+  const newReview = req.body.review;
   const username = req.session.username;
 
   if (!username) {
     return res.status(401).json({ message: 'User not authenticated' });
   }
 
-  if (!review) {
+  if (!newReview) {
     return res.status(400).json({ message: 'Review is required' });
   }
 
@@ -64,12 +64,23 @@ regd_users.put('/auth/review/:isbn', (req, res) => {
     return res.status(404).json({ message: 'Book not found' });
   }
 
-  //Check if the user already reviewed the book
-  if (book.reviews[username]) {
-    book.reviews[username] = review;
-    return res.status(400).json({ message: 'Review updated successfully' });
+  // Initialize the reviews array if it doesn't exist or if it was previously an object
+  if (!Array.isArray(book.reviews)) {
+    book.reviews = []; // Ensure reviews is an array
+  }
+
+  // Check if the user has already reviewed the book
+  const existingReviewIndex = book.reviews.findIndex(
+    (review) => review.username === username
+  );
+
+  if (existingReviewIndex !== -1) {
+    // Update the existing review
+    book.reviews[existingReviewIndex].review = newReview;
+    return res.status(200).json({ message: 'Review updated successfully' });
   } else {
-    book.reviews[username] = review;
+    // Add the new review
+    book.reviews.push({ username: username.username, review: newReview });
     return res.status(201).json({ message: 'Review added successfully' });
   }
 });
@@ -88,11 +99,21 @@ regd_users.delete('/auth/review/:isbn', (req, res) => {
     return res.status(404).json({ message: 'Book not found' });
   }
 
-  if (book.reviews[username]) {
-    delete book.reviews[username];
-    return res.status(200).json({ message: 'Review deleted successfully' });
+  // Check if reviews is an array and find the index of the review by username
+  if (Array.isArray(book.reviews)) {
+    const reviewIndex = book.reviews.findIndex(
+      (review) => review.username === username.username
+    );
+
+    // If the review exists, remove it from the array
+    if (reviewIndex !== -1) {
+      book.reviews.splice(reviewIndex, 1);
+      return res.status(200).json({ message: 'Review deleted successfully' });
+    } else {
+      return res.status(404).json({ message: 'Review not found' });
+    }
   } else {
-    return res.status(404).json({ message: 'Review not found' });
+    return res.status(404).json({ message: 'No reviews found' });
   }
 });
 
